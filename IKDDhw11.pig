@@ -1,0 +1,11 @@
+REGISTER myudf.jar;
+A = LOAD '$input' as (st:chararray);
+B = foreach A generate myudf.UDF(st);
+C = filter B by $0!='';
+D = foreach C generate flatten(TOKENIZE($0)) as word;
+E = GROUP D BY (word);
+F = foreach E generate flatten(group),COUNT(D) as cnt;
+G = ORDER F BY cnt DESC;
+H = LIMIT G 100;
+STORE H INTO '$output';
+dump H;
